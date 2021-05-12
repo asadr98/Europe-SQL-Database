@@ -1,0 +1,36 @@
+CREATE VIEW unemployment AS
+SELECT country_name, english_proficiency, violent_crime_rate, 
+life_expectancy, universal_healthcare
+FROM demographics_table
+JOIN economics
+USING (country_id)
+WHERE unemployment_rate > 6.0 AND inflation_rate > 2.5
+GROUP BY country_name
+ORDER BY violent_crime_rate DESC;
+
+CREATE VIEW demographics AS
+SELECT country_id, country_name, population
+FROM demographics_table
+WHERE population IN (
+SELECT MAX(population) FROM demographics_table);
+
+CREATE VIEW compare_climate_zones AS
+SELECT climate_zone, AVG(hdi) AS average_hdi, AVG(gdp_per_capita) AS average_income, AVG(unemployment_rate) AS average_unemployment
+FROM geography_table
+JOIN demographics_table USING(country_id)
+JOIN economics USING(country_id)
+GROUP BY climate_zone
+ORDER BY AVG(hdi) DESC;
+
+CREATE VIEW major_EU_republics AS
+SELECT m.country_name AS "Country Name" , p.government_form AS "Government Form"
+FROM main_table m JOIN political_system_table p USING (country_id)
+JOIN demographics_table d USING (country_id)
+WHERE d.population > 1000000 AND p.monarchy_or_republic = "republic" AND p.member_of_eu = 1;
+
+CREATE VIEW life_expectancy_wealth AS
+SELECT life_expectancy, median_age, gdp_billion, gdp_per_capita, unemployment_rate
+FROM demographics_table
+JOIN economics
+USING (country_id)
+ORDER BY gdp_per_capita;
